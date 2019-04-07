@@ -6,8 +6,7 @@ import Foundation
 import SwiftEvent
 import Glibc
 
-
-let doAccept: @convention(c) (Int32, Int16, UnsafeMutableRawPointer?) -> Void = { (fd, e, arg) in
+let acceptConn: @convention(c) (OpaquePointer?, Int32, UnsafeMutablePointer<sockaddr>?, Int32, UnsafeMutableRawPointer?) -> Void = { (listener, fd, address, socklen, arg) in
 
     guard let t = arg else {
         return
@@ -15,14 +14,13 @@ let doAccept: @convention(c) (Int32, Int16, UnsafeMutableRawPointer?) -> Void = 
 
     let tcpServer: EvTCPServer = t.unretainedValue()
     tcpServer.accept(fd)
-
 }
 
 
 open class EvTCPServer: Event {
 
     let loop: EventLoop
-    var serverFds: [Int32] = []
+    var serverFds: [OpaquePointer] = []
     var delegate: TCPDelegate
     var clients: [Int32: EvConnection] = [:]
 
@@ -58,25 +56,11 @@ open class EvTCPServer: Event {
         var serviceAddress = serviceAddresses
 
         while let service = serviceAddress {
-            let listenerSocket = socket(
-                    service.pointee.ai_family,
-                    service.pointee.ai_socktype,
-                    service.pointee.ai_protocol
-            )
 
-            evutil_make_socket_nonblocking(listenerSocket)
-            evutil_make_listen_socket_reuseable(listenerSocket)
-            bind(listenerSocket, service.pointee.ai_addr, service.pointee.ai_addrlen)
-            listen(listenerSocket, 1024)
-            self.ev = event_new(
-                    loop.evbase,
-                    listenerSocket,
-                    Int16(EV_READ | EV_PERSIST),
-                    doAccept,
-                    unretained2Opaque(self)
-            )
-
-            self.serverFds.append(listenerSocket)
+            if let listener = evconnlistener_new_bind(loop.evbase,
+                    acceptConn, unretained2Opaque(self), LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE, -1, service.pointee.ai_addr, Int32(service.pointee.ai_addrlen)) {
+                self.serverFds.append(listener)
+            }
 
             serviceAddress = serviceAddresses?.pointee.ai_next
 
