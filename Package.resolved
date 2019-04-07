@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "SwiftEvent",
+        "repositoryURL": "https://github.com/alloyapple/SwiftEvent.git",
+        "state": {
+          "branch": "master",
+          "revision": "d18e756af82e4c5126bbd2efe55f988eba546fff",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
