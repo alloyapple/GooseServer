@@ -18,7 +18,9 @@ let acceptConn: @convention(c) (OpaquePointer?, Int32, UnsafeMutablePointer<sock
 
 let acceptConnError: @convention(c) (OpaquePointer?,  UnsafeMutableRawPointer?) -> Void = { (listener, arg) in
 
-    let err = evutil_socket_error_to_string(errno)
+    let err = strerror(errno)
+    let errStr = String(cString: err!)
+    print("FILE:\(#file): \(errStr)")
 }
 
 
