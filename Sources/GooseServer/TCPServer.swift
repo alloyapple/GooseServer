@@ -16,6 +16,12 @@ let acceptConn: @convention(c) (OpaquePointer?, Int32, UnsafeMutablePointer<sock
     tcpServer.accept(fd)
 }
 
+let acceptConnError: @convention(c) (OpaquePointer?,  UnsafeMutableRawPointer?) -> Void = { (listener, arg) in
+
+    let err = evutil_socket_error_to_string(errno)
+}
+
+
 
 open class EvTCPServer: Event {
 
@@ -60,6 +66,7 @@ open class EvTCPServer: Event {
             if let listener = evconnlistener_new_bind(loop.evbase,
                     acceptConn, unretained2Opaque(self), LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE, -1, service.pointee.ai_addr, Int32(service.pointee.ai_addrlen)) {
                 self.serverFds.append(listener)
+                evconnlistener_set_error_cb(listener, acceptConnError)
             }
 
             serviceAddress = serviceAddresses?.pointee.ai_next
@@ -83,6 +90,10 @@ open class EvTCPServer: Event {
             delegate.onNew(conn: c)
         }
 
+    }
+
+    deinit {
+        _ = serverFds.map { evconnlistener_free($0) }
     }
 
 }
