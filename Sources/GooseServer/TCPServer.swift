@@ -77,14 +77,6 @@ open class EvTCPServer: Event {
     }
 
     fileprivate func accept(_ fd: Int32) {
-        var ss = sockaddr_storage()
-        var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
-        let sr = withUnsafeMutablePointer(to: &ss) {
-            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                $0
-            }
-        }
-        let fd = Glibc.accept(fd, sr, &len)
         evutil_make_socket_nonblocking(fd)
         if let b = bufferevent_socket_new(loop.evbase, fd, Int32(BEV_OPT_CLOSE_ON_FREE.rawValue)) {
             let c = EvConnection(ev: b)
