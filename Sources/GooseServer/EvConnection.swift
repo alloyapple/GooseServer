@@ -7,4 +7,10 @@ import Foundation
 
 public class EvConnection {
 
+    let ev: OpaquePointer
+
+    public init(ev: OpaquePointer) {
+        self.ev = ev
+    }
+
 }
