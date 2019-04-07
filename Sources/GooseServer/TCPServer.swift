@@ -23,9 +23,11 @@ open class EvTCPServer: Event {
 
     let loop: EventLoop
     var serverFds: [Int32] = []
+    var delegate: TCPDelegate
 
-    public init(loop: EventLoop) {
+    public init(loop: EventLoop, delegate: TCPDelegate) {
         self.loop = loop
+        self.delegate = delegate
     }
 
     public func start(host: String, port: String) {
