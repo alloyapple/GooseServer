@@ -32,10 +32,9 @@ open class EvTimer: Event {
 
 
     public func start(execute: @escaping TimeoutFunc ) {
-        let e = event_new(self.loop.evbase, -1, Int16(EV_PERSIST), timerCallback, unretained2Opaque(self))
-        self.ev = e
+        self.ev = event_new(self.loop.evbase, -1, Int16(EV_PERSIST), timerCallback, unretained2Opaque(self))
         var t = self.time
-        event_add(e, &t)
+        event_add(self.ev, &t)
 
         self.timeoutFunc = execute
     }
@@ -58,5 +57,12 @@ open class EvTimer: Event {
             event_del(e)
         }
 
+    }
+}
+
+public extension EventLoop {
+    public func timer(time: timeval) -> EvTimer {
+        let timer = EvTimer(time: time, loop: self)
+        return timer
     }
 }
