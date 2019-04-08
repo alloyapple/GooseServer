@@ -92,3 +92,10 @@ open class EvTCPServer: Event {
     }
 
 }
+
+public extension EventLoop {
+    public func tcpServer(delegate: TCPDelegate) -> EvTCPServer {
+        let server = EvTCPServer(loop: self, delegate: delegate)
+        return server
+    }
+}
