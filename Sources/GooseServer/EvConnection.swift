@@ -13,4 +13,13 @@ public class EvConnection {
         self.ev = ev
     }
 
+    public func read() {
+
+    }
+
+    public func write(_ buffer: [UInt8]) -> Int32 {
+        var _buffer = buffer
+        return bufferevent_write(self.ev, &_buffer, buffer.count)
+    }
+
 }
