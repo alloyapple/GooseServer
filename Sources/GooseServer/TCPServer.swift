@@ -16,13 +16,12 @@ let acceptConn: @convention(c) (OpaquePointer?, Int32, UnsafeMutablePointer<sock
     tcpServer.accept(fd)
 }
 
-let acceptConnError: @convention(c) (OpaquePointer?,  UnsafeMutableRawPointer?) -> Void = { (listener, arg) in
+let acceptConnError: @convention(c) (OpaquePointer?, UnsafeMutableRawPointer?) -> Void = { (listener, arg) in
 
     let err = strerror(errno)
     let errStr = String(cString: err!)
     print("FILE:\(#file): \(errStr)")
 }
-
 
 
 open class EvTCPServer: Event {
@@ -38,18 +37,18 @@ open class EvTCPServer: Event {
     }
 
     public func start(host: String, port: String) {
-        var service_address_hints = addrinfo()
-        service_address_hints.ai_family = AF_UNSPEC
+        var serviceAddressHints = addrinfo()
+        serviceAddressHints.ai_family = AF_UNSPEC
         /* Use TCP protocol. */
-        service_address_hints.ai_socktype = Int32(SOCK_STREAM.rawValue)
+        serviceAddressHints.ai_socktype = Int32(SOCK_STREAM.rawValue)
         /* Choose IP automatically. */
-        service_address_hints.ai_flags = AI_PASSIVE
+        serviceAddressHints.ai_flags = AI_PASSIVE
         var serviceAddresses: UnsafeMutablePointer<addrinfo>? = nil
 
         let eai_error = evutil_getaddrinfo(
                 host,
                 port,
-                &service_address_hints,
+                &serviceAddressHints,
                 &serviceAddresses
         )
 
@@ -87,7 +86,9 @@ open class EvTCPServer: Event {
     }
 
     deinit {
-        _ = serverFds.map { evconnlistener_free($0) }
+        _ = serverFds.map {
+            evconnlistener_free($0)
+        }
     }
 
 }
