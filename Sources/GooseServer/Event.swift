@@ -3,7 +3,8 @@
 //
 
 import Foundation
+import SwiftEvent
 
 open class Event {
-    public var ev: OpaquePointer?
+    public var ev: UnsafeMutablePointer<event>?
 }

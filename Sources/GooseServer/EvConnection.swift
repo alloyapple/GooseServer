@@ -3,13 +3,13 @@
 //
 
 import Foundation
-
+import SwiftEvent
 
 public class EvConnection {
 
-    let ev: OpaquePointer
+    let ev: UnsafeMutablePointer<bufferevent>
 
-    public init(ev: OpaquePointer) {
+    public init(ev: UnsafeMutablePointer<bufferevent>) {
         self.ev = ev
     }
 
